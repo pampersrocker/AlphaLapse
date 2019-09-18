@@ -1,0 +1,25 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 10
+    buildToolsVersion "29.0.2"
+
+    defaultConfig {
+        applicationId "de.mindyourbyte.alphalapse.app"
+        minSdkVersion 10
+        targetSdkVersion 10
+        versionCode 1
+        versionName "alpha"//"git -C ${projectDir} describe --always --tags --dirty".execute().text.trim().replaceAll("^v", "")
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_6
+        targetCompatibility JavaVersion.VERSION_1_6
+    }
+}
+
+dependencies {
+    implementation 'com.github.ma1co.OpenMemories-Framework:framework:-SNAPSHOT'
+    compileOnly 'com.github.ma1co.OpenMemories-Framework:stubs:-SNAPSHOT'
+    implementation 'com.nanohttpd:nanohttpd:2.1.1'
+}
