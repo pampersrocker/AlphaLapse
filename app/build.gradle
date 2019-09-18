@@ -1,20 +1,20 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 10
+    compileSdkVersion 16
     buildToolsVersion "29.0.2"
 
     defaultConfig {
         applicationId "de.mindyourbyte.alphalapse.app"
-        minSdkVersion 10
-        targetSdkVersion 10
+        minSdkVersion 16
+        targetSdkVersion 16
         versionCode 1
         versionName "alpha"//"git -C ${projectDir} describe --always --tags --dirty".execute().text.trim().replaceAll("^v", "")
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_6
-        targetCompatibility JavaVersion.VERSION_1_6
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 

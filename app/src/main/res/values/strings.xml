@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">AlphaLapse</string>
-    <string name="tab_text_1">Tab 1</string>
-    <string name="tab_text_2">Tab 2</string>
     <string name="helloAlpha">Hello Alpha!</string>
+    <string name="preview_tab_label">Preview</string>
+    <string name="bulb">BULB</string>
+    <string name="gps_tab_label">GPS</string>
 </resources>
