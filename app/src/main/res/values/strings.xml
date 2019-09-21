@@ -4,4 +4,15 @@
     <string name="preview_tab_label">Preview</string>
     <string name="bulb">BULB</string>
     <string name="gps_tab_label">GPS</string>
+    <string name="choose_time_text">Choose a time</string>
+    <string name="start_time_title">Start Time:</string>
+    <string name="interval_settings_label">Interval</string>
+    <string name="end_time_text">End Time:</string>
+    <string name="interval_settings_text">Interval</string>
+    <string name="interval_hours_text">0h</string>
+    <string name="interval_minutes_text">0m</string>
+    <string name="interval_seconds_text">1s</string>
+    <string name="minutes_postfix">m</string>
+    <string name="seconds_postfix">s</string>
+    <string name="hours_postfix">h</string>
 </resources>

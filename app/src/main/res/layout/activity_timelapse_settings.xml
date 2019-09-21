@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    
+    <TextView
+        android:id="@+id/start_time_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/start_time_title"
+        />
+
+    <Button
+        android:id="@+id/start_time_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/start_time_text"
+        android:text="@string/choose_time_text"
+        />
+
+    <TextView
+        android:id="@+id/end_time_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_below="@id/start_time_button"
+        android:text="@string/end_time_text"
+        />
+
+    <Button
+        android:id="@+id/end_time_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/end_time_text"
+        android:layout_below="@id/start_time_button"
+        android:text="@string/choose_time_text"
+        />
+
+    <TextView
+        android:id="@+id/interval_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/end_time_button"
+        android:text="@string/interval_settings_text"
+        />
+
+    <de.mindyourbyte.alphalapse.NonTouchNumberPicker
+        android:id="@+id/interval_hours_button"
+        android:layout_width="wrap_content"
+        android:layout_height="45dp"
+        android:layout_below="@id/end_time_button"
+        android:layout_toRightOf="@id/interval_text"
+        app:maxValue="24"
+        app:minValue="0"
+        app:postfix="@string/hours_postfix"/>
+    <de.mindyourbyte.alphalapse.NonTouchNumberPicker
+        android:id="@+id/interval_minutes_button"
+        android:layout_width="wrap_content"
+        android:layout_height="45dp"
+
+        android:layout_toRightOf="@id/interval_hours_button"
+        android:layout_below="@id/end_time_button"
+        android:text="@string/interval_minutes_text"
+        app:maxValue="59"
+        app:minValue="0"
+        app:postfix="@string/minutes_postfix"
+        />
+    <de.mindyourbyte.alphalapse.NonTouchNumberPicker
+        android:id="@+id/interval_seconds_button"
+        android:layout_width="wrap_content"
+        android:layout_height="45dp"
+        android:layout_toRightOf="@id/interval_minutes_button"
+        android:layout_below="@id/end_time_button"
+        android:text="@string/interval_seconds_text"
+        app:maxValue="59"
+        app:minValue="0"
+        app:postfix="@string/seconds_postfix"
+        />
+
+</RelativeLayout>

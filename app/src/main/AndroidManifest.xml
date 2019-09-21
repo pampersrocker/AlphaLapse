@@ -20,6 +20,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".PreviewActivity" android:theme="@style/AppTheme"/>
+        <activity android:name=".TimeLapseSettingsActivity" android:theme="@style/AppTheme"/>
     </application>
 
 </manifest>
