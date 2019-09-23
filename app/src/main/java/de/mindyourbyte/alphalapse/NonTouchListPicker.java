@@ -1,45 +1,32 @@
 package de.mindyourbyte.alphalapse;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.widget.Button;
 
 import com.sony.scalar.sysutil.ScalarInput;
-public class NonTouchNumberPicker extends Button {
 
-    public NonTouchNumberPicker(Context context) {
+public class NonTouchListPicker extends Button {
+
+    public NonTouchListPicker(Context context) {
         super(context);
         updateText();
     }
 
-    public NonTouchNumberPicker(Context context, AttributeSet attrs) {
+    public NonTouchListPicker(Context context, AttributeSet attrs) {
         super(context, attrs);
-        TypedArray attributes = context.obtainStyledAttributes(attrs, R.styleable.NonTouchNumberPicker);
-        initializeAttributes(attributes);
         updateText();
     }
 
-    public NonTouchNumberPicker(Context context, AttributeSet attrs, int defStyle) {
+    public NonTouchListPicker(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        TypedArray attributes = context.obtainStyledAttributes(attrs, R.styleable.NonTouchNumberPicker, defStyle, 0);
-        initializeAttributes(attributes);
         updateText();
     }
 
-    private void initializeAttributes(TypedArray attributes) {
-        MinValue = attributes.getInteger(R.styleable.NonTouchNumberPicker_minValue, Integer.MIN_VALUE + 1);
-        MaxValue = attributes.getInteger(R.styleable.NonTouchNumberPicker_maxValue, Integer.MAX_VALUE - 1);
-        setPostfix(attributes.getString(R.styleable.NonTouchNumberPicker_postfix));
-    }
 
-    private int Value;
-    private int MaxValue = Integer.MAX_VALUE - 2;
-    private int MinValue = Integer.MIN_VALUE + 1;
-    private String Postfix = "";
-
-
+    private int ValueIndex;
+    private String[] Values = new String[0];
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -173,81 +160,68 @@ public class NonTouchNumberPicker extends Button {
     protected boolean onLensAttached() { return false; }
     protected boolean onLensDetached() { return false; }
     protected boolean onUpperDialChanged(int value) {
-        shiftValueBy(value * 10);
+        shiftIndexBy(value * 10);
         return true;
     }
     protected boolean onLowerDialChanged(int value) {
-        shiftValueBy(value);
+        shiftIndexBy(value);
         return true;
     }
 
-    private void shiftValueBy(int value) {
-        int newValue = getValue() + value;
-        if (newValue > getMaxValue())
+    private void shiftIndexBy(int value) {
+        int newIndex = getIndex() + value;
+        if (newIndex > getMaxValue())
         {
-            newValue = getMinValue();
+            newIndex = 0;
         }
-        else if(newValue < getMinValue())
+        else if(newIndex < 0)
         {
-            newValue = getMaxValue();
+            newIndex = getMaxValue();
         }
-        setValue(newValue);
+        setIndex(newIndex);
     }
 
     protected boolean onModeDialChanged(int value) { return false; }
     protected boolean onDeleteKeyDown() { return false; }
     protected boolean onDeleteKeyUp() { return false; }
 
-    public int getValue() {
-        return Value;
+    public String getValue() {
+        if (Values != null && Values.length > ValueIndex) {
+            return Values[ValueIndex];
+        }
+        return "";
     }
 
-    public void setValue(int value) {
-        Value = value;
-        clampValue();
+    public int getIndex() {
+        return ValueIndex;
+    }
+
+    public void setIndex(int value) {
+        ValueIndex = value;
+        clampIndex();
     }
 
     public int getMaxValue() {
-        return MaxValue;
+        return Values.length - 1;
     }
 
-    public void setMaxValue(int maxValue) {
-        MaxValue = maxValue;
-        clampValue();
+    public String[] getValues() {
+        return Values;
     }
 
-    public int getMinValue() {
-        return MinValue;
+    public void setValues(String[] values){
+        Values = values;
+        clampIndex();
+        updateText();
     }
 
-    public void setMinValue(int minValue) {
-
-        MinValue = minValue;
-        clampValue();
-
-    }
-
-    private void clampValue()
+    private void clampIndex()
     {
-        int oldValue = Value;
-        Value = Math.min(Math.max(getMinValue(), Value), getMaxValue());
+        ValueIndex = Math.min(Math.max(0, ValueIndex), getMaxValue());
         updateText();
     }
 
     private void updateText() {
-        StringBuilder text = new StringBuilder(Integer.toString(Value));
-        if (getPostfix() != null){
-            text.append(getPostfix());
-        }
-        setText(text.toString());
-    }
-
-    public String getPostfix() {
-        return Postfix;
-    }
-
-    public void setPostfix(String postfix) {
-        Postfix = postfix;
-        updateText();
+        setText(getValue());
     }
 }

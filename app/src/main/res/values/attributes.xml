@@ -5,4 +5,9 @@
         <attr name="maxValue" format="integer"/>
         <attr name="postfix" format="string"/>
     </declare-styleable>
+    <declare-styleable name="NonTouchTimePicker">
+        <attr name="isDatePicker" format="boolean"/>
+        <attr name="textSize" format="dimension" />
+        <attr name="padding" format="dimension" />
+    </declare-styleable>
 </resources>
