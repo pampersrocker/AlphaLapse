@@ -8,6 +8,8 @@ import android.widget.LinearLayout;
 
 import android.text.format.DateFormat;
 
+import java.util.Calendar;
+
 public class NonTouchTimePicker extends LinearLayout {
 
     NonTouchNumberPicker hourPicker;
@@ -25,6 +27,26 @@ public class NonTouchTimePicker extends LinearLayout {
         secondPicker = new NonTouchNumberPicker(context);
         ampmPicker = new NonTouchListPicker(context);
         initialize(context, null);
+    }
+
+
+    public Calendar getDate() {
+        Calendar result = Calendar.getInstance();
+        boolean is24HourFormat = DateFormat.is24HourFormat(getContext());
+        if (is24HourFormat){
+            result.set(Calendar.AM_PM, ampmPicker.getIndex() == 0 ? Calendar.AM: Calendar.PM);
+            result.set(Calendar.HOUR_OF_DAY, hourPicker.getValue());
+        }
+        else {
+            result.set(Calendar.HOUR, hourPicker.getValue());
+        }
+        result.set(Calendar.MINUTE, minutePicker.getValue());
+        result.set(Calendar.SECOND, secondPicker.getValue());
+        return  result;
+    }
+
+    public long getMillisecondsInterval() {
+        return  (((hourPicker.getValue() * 60) + minutePicker.getValue()) * 60 + secondPicker.getValue()) * 1000;
     }
 
     private void initialize(Context context, TypedArray attrs) {

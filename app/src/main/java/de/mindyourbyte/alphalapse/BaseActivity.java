@@ -1,6 +1,7 @@
 package de.mindyourbyte.alphalapse;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.view.KeyEvent;
 import com.sony.scalar.sysutil.ScalarInput;
 
@@ -146,4 +147,12 @@ public class BaseActivity extends Activity {
     protected boolean onModeDialChanged(int value) { return false; }
     protected boolean onDeleteKeyDown() { return false; }
     protected boolean onDeleteKeyUp() { return false; }
+
+    protected void setAutoPowerOffMode(boolean enable) {
+        String mode = enable ? "APO/NORMAL" : "APO/NO";
+        Intent intent = new Intent();
+        intent.setAction("com.android.server.DAConnectionManagerService.apo");
+        intent.putExtra("apo_info", mode);
+        sendBroadcast(intent);
+    }
 }
