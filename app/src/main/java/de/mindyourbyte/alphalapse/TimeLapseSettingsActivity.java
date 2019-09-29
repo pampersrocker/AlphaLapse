@@ -1,6 +1,7 @@
 package de.mindyourbyte.alphalapse;
 
-import android.hardware.Camera;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -29,6 +30,20 @@ public class TimeLapseSettingsActivity extends BaseActivity {
         intervalTimePicker = (NonTouchTimePicker) findViewById(R.id.interval_picker);
         startButton = (Button) findViewById(R.id.start_button);
         startButton.setOnClickListener(this::onClick);
+
+        startTimePicker.setCallback(picker -> {
+            picker.saveChanges(getSharedPreferences(getString(R.string.settings_key), Context.MODE_PRIVATE), getString(R.string.start_time_settings_key));
+        });
+        endTimePicker.setCallback(picker -> {
+            picker.saveChanges(getSharedPreferences(getString(R.string.settings_key), Context.MODE_PRIVATE), getString(R.string.end_time_settings_key));
+        });
+        intervalTimePicker.setCallback(picker -> {
+            picker.saveChanges(getSharedPreferences(getString(R.string.settings_key), Context.MODE_PRIVATE), getString(R.string.interval_time_settings_key));
+        });
+        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.settings_key), Context.MODE_PRIVATE);
+        startTimePicker.loadData(sharedPreferences, getString(R.string.start_time_settings_key));
+        endTimePicker.loadData(sharedPreferences, getString(R.string.end_time_settings_key));
+        intervalTimePicker.loadData(sharedPreferences, getString(R.string.interval_time_settings_key));
     }
 
     private void onClick(View view) {

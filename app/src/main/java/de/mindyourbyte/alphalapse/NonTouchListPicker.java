@@ -9,6 +9,18 @@ import com.sony.scalar.sysutil.ScalarInput;
 
 public class NonTouchListPicker extends Button {
 
+    public ListPickerChanged getCallback() {
+        return callback;
+    }
+
+    public void setCallback(ListPickerChanged callback) {
+        this.callback = callback;
+    }
+
+    public interface ListPickerChanged {
+        void onPickerValueChanged(String value, int valueIndex);
+    }
+
     public NonTouchListPicker(Context context) {
         super(context);
         updateText();
@@ -24,7 +36,7 @@ public class NonTouchListPicker extends Button {
         updateText();
     }
 
-
+    private ListPickerChanged callback;
     private int ValueIndex;
     private String[] Values = new String[0];
 
@@ -199,6 +211,9 @@ public class NonTouchListPicker extends Button {
     public void setIndex(int value) {
         ValueIndex = value;
         clampIndex();
+        if (callback != null){
+            callback.onPickerValueChanged(getValue(), getIndex());
+        }
     }
 
     public int getMaxValue() {
@@ -213,6 +228,9 @@ public class NonTouchListPicker extends Button {
         Values = values;
         clampIndex();
         updateText();
+        if (callback != null) {
+            callback.onPickerValueChanged(getValue(), getIndex());
+        }
     }
 
     private void clampIndex()

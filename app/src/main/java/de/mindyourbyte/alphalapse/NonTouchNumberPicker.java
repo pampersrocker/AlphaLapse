@@ -9,6 +9,18 @@ import android.widget.Button;
 import com.sony.scalar.sysutil.ScalarInput;
 public class NonTouchNumberPicker extends Button {
 
+    public NumberPickerChanged getCallback() {
+        return callback;
+    }
+
+    public void setCallback(NumberPickerChanged callback) {
+        this.callback = callback;
+    }
+
+    public interface NumberPickerChanged {
+        void onPickerValueChanged(int value);
+    }
+
     public NonTouchNumberPicker(Context context) {
         super(context);
         updateText();
@@ -34,6 +46,7 @@ public class NonTouchNumberPicker extends Button {
         setPostfix(attributes.getString(R.styleable.NonTouchNumberPicker_postfix));
     }
 
+    private NumberPickerChanged callback;
     private int Value;
     private int MaxValue = Integer.MAX_VALUE - 2;
     private int MinValue = Integer.MIN_VALUE + 1;
@@ -205,6 +218,9 @@ public class NonTouchNumberPicker extends Button {
     public void setValue(int value) {
         Value = value;
         clampValue();
+        if (callback != null){
+            callback.onPickerValueChanged(getValue());
+        }
     }
 
     public int getMaxValue() {

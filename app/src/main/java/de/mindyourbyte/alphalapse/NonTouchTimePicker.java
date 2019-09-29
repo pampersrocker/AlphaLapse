@@ -1,6 +1,7 @@
 package de.mindyourbyte.alphalapse;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.widget.Button;
@@ -19,6 +20,59 @@ public class NonTouchTimePicker extends LinearLayout {
     boolean isDatePicker = false;
     int textSize = 0;
     int padding = 0;
+    private TimePickerChanged callback;
+
+    public TimePickerChanged getCallback() {
+        return callback;
+    }
+
+    public void setCallback(TimePickerChanged callback) {
+        this.callback = callback;
+    }
+
+    private void onPickerValueChanged(String value, int valueIndex) {
+        onValueChanged();
+    }
+
+    private void onPickerValueChanged(int value) {
+        onValueChanged();
+    }
+
+    public interface TimePickerChanged {
+        void onTimeChanged(NonTouchTimePicker picker);
+    }
+
+    public void saveChanges(SharedPreferences preferences, String prefix) {
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt(prefix + "hours", hourPicker.getValue());
+        editor.putInt(prefix + "minutes", minutePicker.getValue());
+        editor.putInt(prefix + "seconds", secondPicker.getValue());
+        editor.putInt(prefix + "ampm", ampmPicker.getIndex());
+        editor.apply();
+    }
+
+    public static Calendar loadTimeFromPreferences(SharedPreferences preferences, String prefix){
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.AM_PM, preferences.getInt(prefix + "ampm", calendar.get(Calendar.AM_PM)));
+        calendar.set(Calendar.HOUR, preferences.getInt(prefix + "hours", calendar.get(Calendar.HOUR)));
+        calendar.set(Calendar.MINUTE, preferences.getInt(prefix + "minutes", calendar.get(Calendar.MINUTE)));
+        calendar.set(Calendar.SECOND, preferences.getInt(prefix + "seconds", calendar.get(Calendar.SECOND)));
+        return  calendar;
+    }
+
+    public static long loadIntervalFromPreferences(SharedPreferences preferences, String prefix){
+        return (((preferences.getInt(prefix + "hours", 0)) * 60 +
+                (preferences.getInt(prefix + "minutes", 0)) * 60) +
+                preferences.getInt(prefix + "seconds", 0)) * 1000;
+    }
+
+    public void loadData(SharedPreferences preferences, String prefix){
+        Calendar calendar = Calendar.getInstance();
+        hourPicker.setValue(preferences.getInt(prefix + "hours", calendar.get(Calendar.HOUR)));
+        minutePicker.setValue(preferences.getInt(prefix + "minutes", calendar.get(Calendar.MINUTE)));
+        secondPicker.setValue(preferences.getInt(prefix + "seconds", calendar.get(Calendar.SECOND)));
+        ampmPicker.setIndex(preferences.getInt(prefix + "ampm", calendar.get(Calendar.AM_PM)));
+    }
 
     public NonTouchTimePicker(Context context) {
         super(context);
@@ -89,7 +143,17 @@ public class NonTouchTimePicker extends LinearLayout {
         else {
             hourPicker.setMaxValue(9999);
         }
+        hourPicker.setCallback(this::onPickerValueChanged);
+        minutePicker.setCallback(this::onPickerValueChanged);
+        secondPicker.setCallback(this::onPickerValueChanged);
+        ampmPicker.setCallback(this::onPickerValueChanged);
 
+    }
+
+    private void onValueChanged() {
+        if (callback != null) {
+            callback.onTimeChanged(this);
+        }
     }
 
     private void setupButtonStyle(Button picker) {
