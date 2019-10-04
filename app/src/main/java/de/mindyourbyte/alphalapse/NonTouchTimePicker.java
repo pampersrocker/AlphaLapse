@@ -9,6 +9,8 @@ import android.widget.LinearLayout;
 
 import android.text.format.DateFormat;
 
+import com.github.ma1co.openmemories.framework.DateTime;
+
 import java.util.Calendar;
 
 public class NonTouchTimePicker extends LinearLayout {
@@ -51,12 +53,20 @@ public class NonTouchTimePicker extends LinearLayout {
         editor.apply();
     }
 
-    public static Calendar loadTimeFromPreferences(SharedPreferences preferences, String prefix){
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.AM_PM, preferences.getInt(prefix + "ampm", calendar.get(Calendar.AM_PM)));
-        calendar.set(Calendar.HOUR, preferences.getInt(prefix + "hours", calendar.get(Calendar.HOUR)));
+    public static Calendar loadTimeFromPreferences(Context context, SharedPreferences preferences, String prefix){
+        Calendar calendar = DateTime.getInstance().getCurrentTime();
+        boolean is24HourFormat = DateFormat.is24HourFormat(context);
+        if (!is24HourFormat) {
+            calendar.set(Calendar.AM_PM, preferences.getInt(prefix + "ampm", calendar.get(Calendar.AM_PM)));
+            calendar.set(Calendar.HOUR_OF_DAY, preferences.getInt(prefix + "hours", calendar.get(Calendar.HOUR)));
+        }
+        else {
+            calendar.set(Calendar.HOUR, preferences.getInt(prefix + "hours", calendar.get(Calendar.HOUR)));
+        }
         calendar.set(Calendar.MINUTE, preferences.getInt(prefix + "minutes", calendar.get(Calendar.MINUTE)));
         calendar.set(Calendar.SECOND, preferences.getInt(prefix + "seconds", calendar.get(Calendar.SECOND)));
+        int TimeOffset = (calendar.get(Calendar.ZONE_OFFSET) + calendar.get(Calendar.DST_OFFSET)) / (60 * 1000);
+        calendar.add(Calendar.MINUTE, TimeOffset);
         return  calendar;
     }
 
@@ -67,7 +77,7 @@ public class NonTouchTimePicker extends LinearLayout {
     }
 
     public void loadData(SharedPreferences preferences, String prefix){
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = DateTime.getInstance().getCurrentTime();
         hourPicker.setValue(preferences.getInt(prefix + "hours", calendar.get(Calendar.HOUR)));
         minutePicker.setValue(preferences.getInt(prefix + "minutes", calendar.get(Calendar.MINUTE)));
         secondPicker.setValue(preferences.getInt(prefix + "seconds", calendar.get(Calendar.SECOND)));
@@ -85,9 +95,9 @@ public class NonTouchTimePicker extends LinearLayout {
 
 
     public Calendar getDate() {
-        Calendar result = Calendar.getInstance();
+        Calendar result = DateTime.getInstance().getCurrentTime();
         boolean is24HourFormat = DateFormat.is24HourFormat(getContext());
-        if (is24HourFormat){
+        if (!is24HourFormat){
             result.set(Calendar.AM_PM, ampmPicker.getIndex() == 0 ? Calendar.AM: Calendar.PM);
             result.set(Calendar.HOUR_OF_DAY, hourPicker.getValue());
         }

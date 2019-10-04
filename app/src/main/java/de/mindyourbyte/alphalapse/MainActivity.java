@@ -13,6 +13,7 @@ public class MainActivity extends TabActivity {
 
         Thread.setDefaultUncaughtExceptionHandler((thread, exp) -> {
             Logger.exception(exp);
+            System.exit(1);
         });
 
         getTabHost().requestFocus();

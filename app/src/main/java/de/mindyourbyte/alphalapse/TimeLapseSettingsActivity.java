@@ -1,11 +1,15 @@
 package de.mindyourbyte.alphalapse;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
+import com.github.ma1co.openmemories.framework.DateTime;
 import com.sony.scalar.hardware.CameraEx;
 
 import java.util.Calendar;
@@ -19,7 +23,7 @@ public class TimeLapseSettingsActivity extends BaseActivity {
     NonTouchTimePicker intervalTimePicker;
     Button startButton;
     Timer timer;
-    CameraEx camera;
+    TextView dateText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +33,15 @@ public class TimeLapseSettingsActivity extends BaseActivity {
         endTimePicker = (NonTouchTimePicker) findViewById(R.id.end_time_button);
         intervalTimePicker = (NonTouchTimePicker) findViewById(R.id.interval_picker);
         startButton = (Button) findViewById(R.id.start_button);
+        dateText = (TextView) findViewById(R.id.date_text);
         startButton.setOnClickListener(this::onClick);
+
+
+        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.settings_key), Context.MODE_PRIVATE);
+        startTimePicker.loadData(sharedPreferences, getString(R.string.start_time_settings_key));
+        endTimePicker.loadData(sharedPreferences, getString(R.string.end_time_settings_key));
+        intervalTimePicker.loadData(sharedPreferences, getString(R.string.interval_time_settings_key));
+
 
         startTimePicker.setCallback(picker -> {
             picker.saveChanges(getSharedPreferences(getString(R.string.settings_key), Context.MODE_PRIVATE), getString(R.string.start_time_settings_key));
@@ -40,83 +52,22 @@ public class TimeLapseSettingsActivity extends BaseActivity {
         intervalTimePicker.setCallback(picker -> {
             picker.saveChanges(getSharedPreferences(getString(R.string.settings_key), Context.MODE_PRIVATE), getString(R.string.interval_time_settings_key));
         });
-        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.settings_key), Context.MODE_PRIVATE);
-        startTimePicker.loadData(sharedPreferences, getString(R.string.start_time_settings_key));
-        endTimePicker.loadData(sharedPreferences, getString(R.string.end_time_settings_key));
-        intervalTimePicker.loadData(sharedPreferences, getString(R.string.interval_time_settings_key));
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(() -> {
+                    if (dateText != null){
+                        DateFormat format = new android.text.format.DateFormat();
+                        dateText.setText(format.format("hh:mm:ss", DateTime.getInstance().getCurrentTime().getTime()));
+                    }
+                });
+            }
+        }, 1000, 1000);
     }
 
     private void onClick(View view) {
-        if (timer != null)
-        {
-            setAutoPowerOffMode(true);
-            startButton.setText(getString(R.string.start_text));
-            timer.cancel();
-            timer = null;
-            if (camera != null)
-            {
-                camera.release();
-                camera = null;
-            }
-        }
-        else{
-            setAutoPowerOffMode(false);
-            startButton.setText(getString(R.string.stop_text));
-            timer = new Timer();
-            if(camera == null) {
-                Logger.info("Starting camera");
-                camera = CameraEx.open(0, null);
-            }
-            scheduleAutoFocus(0);
-            timer.schedule(new TakeShotTimerTask(), intervalTimePicker.getMillisecondsInterval());
-            Logger.info(String.format("Scheduled shot in %d milliseconds.", intervalTimePicker.getMillisecondsInterval()));
-        }
-
-    }
-
-    private void scheduleAutoFocus(long difference) {
-        if (intervalTimePicker.getMillisecondsInterval() - difference > 4000){
-            long nextInterval = intervalTimePicker.getMillisecondsInterval() - difference - 4000;
-            Logger.info(String.format("Scheduled autofocus in %d milliseconds.", nextInterval));
-            timer.schedule(new AutoFocusTimerTask(), nextInterval);
-        }
-    }
-
-    private class TakeShotTimerTask extends TimerTask {
-        @Override
-        public void run() {
-            Logger.info("taking shot");
-            Calendar now = Calendar.getInstance();
-            if (camera!= null) {
-                camera.getNormalCamera().takePicture(() -> {
-                    Logger.info("took shot");
-                    camera.cancelTakePicture();
-                    try {
-                        camera.getNormalCamera().cancelAutoFocus();
-                    } catch (Exception e) {
-                        Logger.exception(e);
-                    }
-                    Calendar onShotTime = Calendar.getInstance();
-                    long difference = onShotTime.getTimeInMillis() - now.getTimeInMillis();
-                    scheduleAutoFocus(difference);
-                    timer.schedule(new TakeShotTimerTask(), intervalTimePicker.getMillisecondsInterval() - difference);
-                    Logger.info("rescheduled shot");
-                }, null, null);
-            }
-        }
-    }
-
-    private class AutoFocusTimerTask extends TimerTask {
-        @Override
-        public void run() {
-            if (camera != null){
-                Logger.info("autofocus");
-                try{
-                    camera.getNormalCamera().autoFocus((b, camera) -> Logger.info("Auto focus is: " + b));
-                }catch (RuntimeException exc){
-                    Logger.exception(exc);
-                }
-            }
-        }
+        Intent intent = new Intent(this, TimeLapseActivity.class);
+        startActivity(intent);
     }
 }

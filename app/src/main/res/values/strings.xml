@@ -23,4 +23,6 @@
     <string name="start_time_settings_key">settings.start_time.</string>
     <string name="end_time_settings_key">settings.end_time.</string>
     <string name="interval_time_settings_key">settings.interval_time.</string>
+    <string name="next_picture_in_s">Next Picture in %s</string>
+    <string name="time_left">%02d:%02d:%02d</string>
 </resources>

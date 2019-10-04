@@ -198,7 +198,7 @@ public class NonTouchListPicker extends Button {
     protected boolean onDeleteKeyUp() { return false; }
 
     public String getValue() {
-        if (Values != null && Values.length > ValueIndex) {
+        if (Values != null && Values.length > ValueIndex && ValueIndex >= 0) {
             return Values[ValueIndex];
         }
         return "";
@@ -217,7 +217,10 @@ public class NonTouchListPicker extends Button {
     }
 
     public int getMaxValue() {
-        return Values.length - 1;
+        if (Values.length > 0) {
+            return Values.length - 1;
+        }
+        return 0;
     }
 
     public String[] getValues() {
