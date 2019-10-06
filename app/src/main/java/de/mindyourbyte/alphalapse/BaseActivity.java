@@ -3,12 +3,19 @@ package de.mindyourbyte.alphalapse;
 import android.app.Activity;
 import android.content.Intent;
 import android.view.KeyEvent;
+
+
+import com.github.ma1co.openmemories.framework.DisplayManager;
 import com.sony.scalar.sysutil.ScalarInput;
 
 public class BaseActivity extends Activity {
 
+    protected DisplayManager displayManager;
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
+        onAnyKeyDown();
+
         switch (event.getScanCode()) {
             case ScalarInput.ISV_KEY_UP:
                 return onUpKeyDown();
@@ -59,6 +66,8 @@ public class BaseActivity extends Activity {
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
+        onAnyKeyUp();
+
         switch (event.getScanCode()) {
             case ScalarInput.ISV_KEY_UP:
                 return onUpKeyUp();
@@ -110,6 +119,8 @@ public class BaseActivity extends Activity {
     protected int getDialStatus(int key) {
         return ScalarInput.getKeyStatus(key).status;
     }
+    protected void onAnyKeyDown() {}
+    protected void onAnyKeyUp() {}
     protected boolean onUpKeyDown() { return false; }
     protected boolean onUpKeyUp() { return false; }
     protected boolean onDownKeyDown() { return false; }
@@ -154,5 +165,18 @@ public class BaseActivity extends Activity {
         intent.setAction("com.android.server.DAConnectionManagerService.apo");
         intent.putExtra("apo_info", mode);
         sendBroadcast(intent);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        displayManager = DisplayManager.create(getApplicationContext());
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        displayManager.release();
+        displayManager = null;
     }
 }

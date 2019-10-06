@@ -2,11 +2,13 @@ package de.mindyourbyte.alphalapse;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.view.Display;
 import android.widget.Button;
 import android.widget.TextView;
 
 import com.github.ma1co.openmemories.framework.DateTime;
 import com.sony.scalar.hardware.CameraEx;
+import com.sony.scalar.hardware.avio.DisplayManager;
 
 import java.text.DateFormat;
 import java.util.Calendar;
@@ -20,6 +22,8 @@ public class TimeLapseActivity extends BaseActivity {
     long intervalTime;
     TextView nextShotText;
     Calendar nextShot;
+
+    ActiveDisplay activeDisplay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +51,8 @@ public class TimeLapseActivity extends BaseActivity {
 
     private void startTimeLapse() {
         setAutoPowerOffMode(false);
+        activeDisplay = new ActiveDisplay(displayManager);
+        activeDisplay.setAutoTurnOffTime(5000);
         timer = new Timer();
         if(camera == null) {
             Logger.info("Starting camera");
@@ -62,15 +68,25 @@ public class TimeLapseActivity extends BaseActivity {
     }
 
     @Override
+    protected void onAnyKeyDown() {
+        super.onAnyKeyDown();
+        if (activeDisplay != null){
+            activeDisplay.turnOn();
+        }
+    }
+
+    @Override
     protected void onPause() {
-        super.onPause();
         if (timer != null)
         {
             stopTimeLapse();
         }
+        super.onPause();
     }
 
     private void stopTimeLapse() {
+        activeDisplay.setAutoTurnOffTime(ActiveDisplay.NO_AUTO_TURN_OFF);
+        activeDisplay.turnOn();
         setAutoPowerOffMode(true);
         timer.cancel();
         timer = null;

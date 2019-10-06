@@ -58,10 +58,10 @@ public class NonTouchTimePicker extends LinearLayout {
         boolean is24HourFormat = DateFormat.is24HourFormat(context);
         if (!is24HourFormat) {
             calendar.set(Calendar.AM_PM, preferences.getInt(prefix + "ampm", calendar.get(Calendar.AM_PM)));
-            calendar.set(Calendar.HOUR_OF_DAY, preferences.getInt(prefix + "hours", calendar.get(Calendar.HOUR)));
+            calendar.set(Calendar.HOUR, preferences.getInt(prefix + "hours", calendar.get(Calendar.HOUR)));
         }
         else {
-            calendar.set(Calendar.HOUR, preferences.getInt(prefix + "hours", calendar.get(Calendar.HOUR)));
+            calendar.set(Calendar.HOUR_OF_DAY, preferences.getInt(prefix + "hours", calendar.get(Calendar.HOUR)));
         }
         calendar.set(Calendar.MINUTE, preferences.getInt(prefix + "minutes", calendar.get(Calendar.MINUTE)));
         calendar.set(Calendar.SECOND, preferences.getInt(prefix + "seconds", calendar.get(Calendar.SECOND)));
@@ -78,7 +78,7 @@ public class NonTouchTimePicker extends LinearLayout {
 
     public void loadData(SharedPreferences preferences, String prefix){
         Calendar calendar = DateTime.getInstance().getCurrentTime();
-        hourPicker.setValue(preferences.getInt(prefix + "hours", calendar.get(Calendar.HOUR)));
+        hourPicker.setValue(preferences.getInt(prefix + "hours", calendar.get(Calendar.HOUR_OF_DAY)));
         minutePicker.setValue(preferences.getInt(prefix + "minutes", calendar.get(Calendar.MINUTE)));
         secondPicker.setValue(preferences.getInt(prefix + "seconds", calendar.get(Calendar.SECOND)));
         ampmPicker.setIndex(preferences.getInt(prefix + "ampm", calendar.get(Calendar.AM_PM)));
@@ -99,10 +99,10 @@ public class NonTouchTimePicker extends LinearLayout {
         boolean is24HourFormat = DateFormat.is24HourFormat(getContext());
         if (!is24HourFormat){
             result.set(Calendar.AM_PM, ampmPicker.getIndex() == 0 ? Calendar.AM: Calendar.PM);
-            result.set(Calendar.HOUR_OF_DAY, hourPicker.getValue());
+            result.set(Calendar.HOUR, hourPicker.getValue());
         }
         else {
-            result.set(Calendar.HOUR, hourPicker.getValue());
+            result.set(Calendar.HOUR_OF_DAY, hourPicker.getValue());
         }
         result.set(Calendar.MINUTE, minutePicker.getValue());
         result.set(Calendar.SECOND, secondPicker.getValue());
