@@ -170,7 +170,7 @@ public class BaseActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        displayManager = DisplayManager.create(getApplicationContext());
+        displayManager = DisplayManager.create(this);
     }
 
     @Override

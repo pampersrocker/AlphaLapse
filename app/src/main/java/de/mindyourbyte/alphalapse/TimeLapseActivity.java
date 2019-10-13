@@ -1,27 +1,29 @@
 package de.mindyourbyte.alphalapse;
 
 import android.content.Context;
+import android.hardware.Camera;
 import android.os.Bundle;
-import android.view.Display;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.widget.Button;
 import android.widget.TextView;
 
 import com.github.ma1co.openmemories.framework.DateTime;
 import com.sony.scalar.hardware.CameraEx;
-import com.sony.scalar.hardware.avio.DisplayManager;
 
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class TimeLapseActivity extends BaseActivity {
+public class TimeLapseActivity extends BaseActivity implements SurfaceHolder.Callback {
     Button stopButton;
     Timer timer;
     CameraEx camera;
     long intervalTime;
     TextView nextShotText;
     Calendar nextShot;
+    SurfaceHolder surfaceHolder;
 
     ActiveDisplay activeDisplay;
 
@@ -37,11 +39,18 @@ public class TimeLapseActivity extends BaseActivity {
         stopButton.setOnClickListener(view -> {
             onBackPressed();
         });
+
+        SurfaceView cameraView = (SurfaceView)findViewById(R.id.cameraSurface);
+        surfaceHolder = cameraView.getHolder();
+        surfaceHolder.addCallback(this);
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        camera = CameraEx.open(0, null);
+        surfaceHolder.addCallback(this);
         if (timer != null)
         {
             stopTimeLapse();
@@ -56,7 +65,6 @@ public class TimeLapseActivity extends BaseActivity {
         timer = new Timer();
         if(camera == null) {
             Logger.info("Starting camera");
-            camera = CameraEx.open(0, null);
         }
         scheduleAutoFocus(0);
         calculateNextShotTime(0);
@@ -64,7 +72,16 @@ public class TimeLapseActivity extends BaseActivity {
         timer.schedule(new TakeShotTimerTask(), delay);
         Logger.info(String.format("Scheduled shot in %d milliseconds.", intervalTime));
         timer.schedule(new UpdateTimerTask(), 1000, 1000);
+        Camera.Parameters params = camera.getNormalCamera().getParameters();
+        CameraEx.ParametersModifier modifier = camera.createParametersModifier(params);
+        modifier.setDriveMode(CameraEx.ParametersModifier.DRIVE_MODE_SINGLE);
+        try {
+            modifier.setSilentShutterMode(true);
+        }
+        catch(NoSuchMethodError ignored)
+        {}
 
+        camera.getNormalCamera().setParameters(params);
     }
 
     @Override
@@ -81,6 +98,9 @@ public class TimeLapseActivity extends BaseActivity {
         {
             stopTimeLapse();
         }
+        camera.release();
+        camera = null;
+        surfaceHolder.removeCallback(this);
         super.onPause();
     }
 
@@ -90,11 +110,7 @@ public class TimeLapseActivity extends BaseActivity {
         setAutoPowerOffMode(true);
         timer.cancel();
         timer = null;
-        if (camera != null)
-        {
-            camera.release();
-            camera = null;
-        }
+
     }
 
     private void scheduleAutoFocus(long difference) {
@@ -103,6 +119,29 @@ public class TimeLapseActivity extends BaseActivity {
             Logger.info(String.format("Scheduled autofocus in %d milliseconds.", nextInterval));
             timer.schedule(new AutoFocusTimerTask(), nextInterval);
         }
+    }
+
+    @Override
+    public void surfaceCreated(SurfaceHolder surfaceHolder) {
+        try {
+            camera.getNormalCamera().setPreviewDisplay(surfaceHolder);
+            camera.getNormalCamera().startPreview();
+
+
+        } catch (Throwable e) {
+            Logger.exception(e);
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
+
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+
     }
 
     private class StartEndDates
@@ -133,14 +172,11 @@ public class TimeLapseActivity extends BaseActivity {
 
         Calendar startTime = NonTouchTimePicker.loadTimeFromPreferences(getApplicationContext(), getSharedPreferences(getString(R.string.settings_key), Context.MODE_PRIVATE), getString(R.string.start_time_settings_key));
         Calendar endTime = NonTouchTimePicker.loadTimeFromPreferences(getApplicationContext(), getSharedPreferences(getString(R.string.settings_key), Context.MODE_PRIVATE), getString(R.string.end_time_settings_key));
-        Logger.info("Start time is " + dateFormat.format(startTime.getTime()));
-        Logger.info("End time is " + dateFormat.format(endTime.getTime()));
         if (startTime.compareTo(endTime) > 0){
             Calendar temp = startTime;
             startTime = endTime;
             endTime = temp;
             endTime.add(Calendar.DAY_OF_MONTH, 1);
-            Logger.info("Swapped times and set end time to " + dateFormat.format(endTime.getTime()));
 
         }
         return new StartEndDates(startTime, endTime);
@@ -208,7 +244,7 @@ public class TimeLapseActivity extends BaseActivity {
             }
             nextShot = dates.startTime;
         }
-        Logger.info("Set next sho to " + dateFormat.format(nextShot.getTime()));
+        Logger.info("Set next shot to " + dateFormat.format(nextShot.getTime()));
 
     }
 

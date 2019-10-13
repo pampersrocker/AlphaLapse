@@ -14,12 +14,7 @@ public class ActiveDisplay {
     private int autoTurnOffTime = NO_AUTO_TURN_OFF;
 
     Handler handler = new Handler();
-    Runnable turnOffRunnable = new Runnable() {
-        @Override
-        public void run() {
-            turnOff();
-        }
-    };
+    Runnable turnOffRunnable = () -> turnOff();
 
     public ActiveDisplay(DisplayManager manager){
         displayManager = manager;
@@ -43,6 +38,7 @@ public class ActiveDisplay {
         autoTurnOffTime = milliseconds;
         if (autoTurnOffTime <= NO_AUTO_TURN_OFF){
             autoTurnOffTime = NO_AUTO_TURN_OFF;
+            handler.removeCallbacks(turnOffRunnable);
         }
 
         scheduleAutoTurnOff();
@@ -50,6 +46,7 @@ public class ActiveDisplay {
 
     private void scheduleAutoTurnOff() {
         if (autoTurnOffTime > NO_AUTO_TURN_OFF){
+            handler.removeCallbacks(turnOffRunnable);
             handler.postDelayed(turnOffRunnable, autoTurnOffTime);
         }
     }
