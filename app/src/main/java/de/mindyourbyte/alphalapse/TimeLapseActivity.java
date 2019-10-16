@@ -33,9 +33,9 @@ public class TimeLapseActivity extends BaseActivity implements SurfaceHolder.Cal
         setContentView(R.layout.timelapse_activity);
         stopButton = (Button) findViewById(R.id.stop_button);
         nextShotText = (TextView) findViewById(R.id.time_left_text);
-        intervalTime = NonTouchTimePicker.loadIntervalFromPreferences(getSharedPreferences(
-                getString(R.string.settings_key), Context.MODE_PRIVATE),
-                getString(R.string.interval_time_settings_key));
+        Settings settings = Settings.getInstance();
+        settings.load(getApplicationContext());
+        intervalTime = NonTouchTimePicker.loadIntervalFromPreferences(settings.Interval);
         stopButton.setOnClickListener(view -> {
             onBackPressed();
         });
@@ -61,12 +61,16 @@ public class TimeLapseActivity extends BaseActivity implements SurfaceHolder.Cal
     private void startTimeLapse() {
         setAutoPowerOffMode(false);
         activeDisplay = new ActiveDisplay(displayManager);
-        activeDisplay.setAutoTurnOffTime(5000);
+        if (Settings.getInstance().TurnOffScreen) {
+            activeDisplay.setAutoTurnOffTime(5000);
+        }
         timer = new Timer();
         if(camera == null) {
             Logger.info("Starting camera");
         }
-        scheduleAutoFocus(0);
+        if (Settings.getInstance().Autofocus) {
+            scheduleAutoFocus(0);
+        }
         calculateNextShotTime(0);
         long delay = Math.max(0, nextShot.getTimeInMillis() - DateTime.getInstance().getCurrentTime().getTimeInMillis());
         timer.schedule(new TakeShotTimerTask(), delay);
@@ -169,9 +173,9 @@ public class TimeLapseActivity extends BaseActivity implements SurfaceHolder.Cal
     private StartEndDates getStartEndDates()
     {
         DateFormat dateFormat = android.text.format.DateFormat.getTimeFormat(getApplicationContext());
-
-        Calendar startTime = NonTouchTimePicker.loadTimeFromPreferences(getApplicationContext(), getSharedPreferences(getString(R.string.settings_key), Context.MODE_PRIVATE), getString(R.string.start_time_settings_key));
-        Calendar endTime = NonTouchTimePicker.loadTimeFromPreferences(getApplicationContext(), getSharedPreferences(getString(R.string.settings_key), Context.MODE_PRIVATE), getString(R.string.end_time_settings_key));
+        Settings settings = Settings.getInstance();
+        Calendar startTime = NonTouchTimePicker.loadTimeFromPreferences(getApplicationContext(), settings.StartTime);
+        Calendar endTime = NonTouchTimePicker.loadTimeFromPreferences(getApplicationContext(), settings.EndTime);
         if (startTime.compareTo(endTime) > 0){
             Calendar temp = startTime;
             startTime = endTime;
@@ -217,7 +221,9 @@ public class TimeLapseActivity extends BaseActivity implements SurfaceHolder.Cal
                     Calendar onShotTime = DateTime.getInstance().getCurrentTime();
                     long difference = onShotTime.getTimeInMillis() - now.getTimeInMillis();
                     calculateNextShotTime(difference);
-                    scheduleAutoFocus(difference);
+                    if (Settings.getInstance().Autofocus) {
+                        scheduleAutoFocus(difference);
+                    }
                     long delay = Math.max(0, nextShot.getTimeInMillis() - DateTime.getInstance().getCurrentTime().getTimeInMillis());
                     timer.schedule(new TakeShotTimerTask(), delay);
                     Logger.info("rescheduled shot");

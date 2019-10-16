@@ -19,6 +19,7 @@ public class MainActivity extends TabActivity {
         getTabHost().requestFocus();
         Logger.info("Created MainActivity");
         addTab("interval_settings", getString(R.string.interval_settings_label), 0, TimeLapseSettingsActivity.class);
+        addTab("settings", getString(R.string.settings_label), 0, SettingsActivity.class);
         try {
             addTab("preview", getString(R.string.preview_tab_label), 0, PreviewActivity.class);
         }

@@ -24,6 +24,7 @@
         <activity android:name=".PreviewActivity" android:theme="@style/AppTheme"/>
         <activity android:name=".TimeLapseSettingsActivity" android:theme="@style/AppTheme"/>
         <activity android:name=".TimeLapseActivity" android:theme="@style/AppTheme" />
+        <activity android:name=".SettingsActivity" android:theme="@style/AppTheme" />
     </application>
 
 </manifest>

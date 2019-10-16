@@ -1,7 +1,6 @@
 package de.mindyourbyte.alphalapse;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.widget.Button;
@@ -44,44 +43,41 @@ public class NonTouchTimePicker extends LinearLayout {
         void onTimeChanged(NonTouchTimePicker picker);
     }
 
-    public void saveChanges(SharedPreferences preferences, String prefix) {
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt(prefix + "hours", hourPicker.getValue());
-        editor.putInt(prefix + "minutes", minutePicker.getValue());
-        editor.putInt(prefix + "seconds", secondPicker.getValue());
-        editor.putInt(prefix + "ampm", ampmPicker.getIndex());
-        editor.apply();
+    public void saveChanges(TimeSetting setting) {
+        setting.Hour = hourPicker.getValue();
+        setting.Minute = minutePicker.getValue();
+        setting.Second = secondPicker.getValue();
+        setting.AM = ampmPicker.getIndex() == 0;
     }
 
-    public static Calendar loadTimeFromPreferences(Context context, SharedPreferences preferences, String prefix){
+    public static Calendar loadTimeFromPreferences(Context context, TimeSetting setting){
         Calendar calendar = DateTime.getInstance().getCurrentTime();
         boolean is24HourFormat = DateFormat.is24HourFormat(context);
         if (!is24HourFormat) {
-            calendar.set(Calendar.AM_PM, preferences.getInt(prefix + "ampm", calendar.get(Calendar.AM_PM)));
-            calendar.set(Calendar.HOUR, preferences.getInt(prefix + "hours", calendar.get(Calendar.HOUR)));
+            calendar.set(Calendar.AM_PM, setting.AM ? Calendar.AM : Calendar.PM);
+            calendar.set(Calendar.HOUR, setting.Hour);
         }
         else {
-            calendar.set(Calendar.HOUR_OF_DAY, preferences.getInt(prefix + "hours", calendar.get(Calendar.HOUR)));
+            calendar.set(Calendar.HOUR_OF_DAY, setting.Hour);
         }
-        calendar.set(Calendar.MINUTE, preferences.getInt(prefix + "minutes", calendar.get(Calendar.MINUTE)));
-        calendar.set(Calendar.SECOND, preferences.getInt(prefix + "seconds", calendar.get(Calendar.SECOND)));
+        calendar.set(Calendar.MINUTE, setting.Minute);
+        calendar.set(Calendar.SECOND, setting.Second);
         int TimeOffset = (calendar.get(Calendar.ZONE_OFFSET) + calendar.get(Calendar.DST_OFFSET)) / (60 * 1000);
         calendar.add(Calendar.MINUTE, TimeOffset);
         return  calendar;
     }
 
-    public static long loadIntervalFromPreferences(SharedPreferences preferences, String prefix){
-        return (((preferences.getInt(prefix + "hours", 0)) * 60 +
-                (preferences.getInt(prefix + "minutes", 0)) * 60) +
-                preferences.getInt(prefix + "seconds", 0)) * 1000;
+    public static long loadIntervalFromPreferences(TimeSetting setting){
+        return ((setting.Hour) * 60 +
+                (setting.Minute * 60) +
+                setting.Second) * 1000;
     }
 
-    public void loadData(SharedPreferences preferences, String prefix){
-        Calendar calendar = DateTime.getInstance().getCurrentTime();
-        hourPicker.setValue(preferences.getInt(prefix + "hours", calendar.get(Calendar.HOUR_OF_DAY)));
-        minutePicker.setValue(preferences.getInt(prefix + "minutes", calendar.get(Calendar.MINUTE)));
-        secondPicker.setValue(preferences.getInt(prefix + "seconds", calendar.get(Calendar.SECOND)));
-        ampmPicker.setIndex(preferences.getInt(prefix + "ampm", calendar.get(Calendar.AM_PM)));
+    public void loadData(TimeSetting setting){
+        hourPicker.setValue(setting.Hour);
+        minutePicker.setValue(setting.Minute);
+        secondPicker.setValue(setting.Second);
+        ampmPicker.setIndex(setting.AM ? 0 : 1);
     }
 
     public NonTouchTimePicker(Context context) {

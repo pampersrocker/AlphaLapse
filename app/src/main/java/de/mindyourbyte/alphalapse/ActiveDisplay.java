@@ -19,6 +19,11 @@ public class ActiveDisplay {
     public ActiveDisplay(DisplayManager manager){
         displayManager = manager;
         defaultDisplay = displayManager.getActiveDisplay();
+        displayManager.addListener(display -> {
+            if (display != DisplayManager.Display.NONE) {
+                scheduleAutoTurnOff();
+            }
+        });
         if (defaultDisplay == DisplayManager.Display.NONE){
             defaultDisplay = DisplayManager.Display.SCREEN;
         }
